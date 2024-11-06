@@ -1,38 +1,50 @@
-import {useFonts} from "expo-font"
-import {Stack} from "expo-router";
-import * as SplashScreen from 'expo-splash-screen'
-import '../global.css'
-import {useEffect} from "react";
+import { ClerkProvider, ClerkLoaded } from "@clerk/clerk-expo";
+import { useFonts } from "expo-font";
+import { Stack } from "expo-router";
+import * as SplashScreen from "expo-splash-screen";
+import "../global.css";
+import { useEffect } from "react";
 
-SplashScreen.preventAutoHideAsync()
+const publishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY!;
+
+SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-    const [loaded] = useFonts({
-        "Jakarta-Bold": require("../assets/fonts/PlusJakartaSans-Bold.ttf"),
-        "Jakarta-ExtraBold": require("../assets/fonts/PlusJakartaSans-ExtraBold.ttf"),
-        "Jakarta-ExtraLight": require("../assets/fonts/PlusJakartaSans-ExtraLight.ttf"),
-        "Jakarta-Light": require("../assets/fonts/PlusJakartaSans-Light.ttf"),
-        "Jakarta-Medium": require("../assets/fonts/PlusJakartaSans-Medium.ttf"),
-        "Jakarta-Regular": require("../assets/fonts/PlusJakartaSans-Regular.ttf"),
-        "Jakarta-SemiBold": require("../assets/fonts/PlusJakartaSans-SemiBold.ttf"),
-    });
+  const [loaded] = useFonts({
+    "Jakarta-Bold": require("../assets/fonts/PlusJakartaSans-Bold.ttf"),
+    "Jakarta-ExtraBold": require("../assets/fonts/PlusJakartaSans-ExtraBold.ttf"),
+    "Jakarta-ExtraLight": require("../assets/fonts/PlusJakartaSans-ExtraLight.ttf"),
+    "Jakarta-Light": require("../assets/fonts/PlusJakartaSans-Light.ttf"),
+    "Jakarta-Medium": require("../assets/fonts/PlusJakartaSans-Medium.ttf"),
+    "Jakarta-Regular": require("../assets/fonts/PlusJakartaSans-Regular.ttf"),
+    "Jakarta-SemiBold": require("../assets/fonts/PlusJakartaSans-SemiBold.ttf"),
+  });
 
-    useEffect(() => {
-        if (loaded) {
-            SplashScreen.hide();
-        }
-    }, [loaded])
+  if (!publishableKey) {
+    throw new Error(
+      "Missing Publishable Key. Please set EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY in your .env",
+    );
+  }
 
-    if (!loaded) {
-        null
+  useEffect(() => {
+    if (loaded) {
+      SplashScreen.hide();
     }
+  }, [loaded]);
 
+  if (!loaded) {
+    null;
+  }
 
-    return (
-        <Stack screenOptions={{headerShown: false}}>
-            <Stack.Screen name="index"/>
-            <Stack.Screen name="(root)"/>
-            <Stack.Screen name="(auth)"/>
+  return (
+    <ClerkProvider publishableKey={publishableKey}>
+      <ClerkLoaded>
+        <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="index" />
+          <Stack.Screen name="(root)" />
+          <Stack.Screen name="(auth)" />
         </Stack>
-    )
+      </ClerkLoaded>
+    </ClerkProvider>
+  );
 }
